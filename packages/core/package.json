@@ -1,5 +1,5 @@
 {
-  "name": "uniresp-core",
+  "name": "@uniresp/core",
   "version": "0.1.2",
   "type": "module",
   "main": "./dist/index.js",

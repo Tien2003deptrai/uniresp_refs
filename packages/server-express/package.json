@@ -1,5 +1,5 @@
 {
-  "name": "uniresp-server-express",
+  "name": "@uniresp/server-express",
   "version": "0.1.2",
   "type": "module",
   "main": "./dist/index.js",

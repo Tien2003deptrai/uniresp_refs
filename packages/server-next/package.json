@@ -1,5 +1,5 @@
 {
-  "name": "uniresp-server-next",
+  "name": "@uniresp/server-next",
   "version": "0.1.2",
   "type": "module",
   "main": "./dist/index.js",
