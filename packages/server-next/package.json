@@ -1,0 +1,54 @@
+{
+  "name": "@uniresp/server-next",
+  "version": "0.1.2",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "api",
+    "response",
+    "error",
+    "handling",
+    "node",
+    "express",
+    "nextjs",
+    "react",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-user/uniresp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-user/uniresp/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "scripts": {
+    "build": "tsc -b",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "prepublishOnly": "tsc -b"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "next": ">=13"
+  },
+  "devDependencies": {
+    "next": "^15",
+    "typescript": "^5.5.0"
+  },
+  "description": "Next.js (App Router) route handler adapter."
+}
