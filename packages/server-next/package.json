@@ -1,5 +1,5 @@
 {
-  "name": "@uniresp/server-next",
+  "name": "uniresp-server-next",
   "version": "0.1.2",
   "type": "module",
   "main": "./dist/index.js",
@@ -29,10 +29,10 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-user/uniresp.git"
+    "url": "https://github.com/Tien2003deptrai/uniresp_refs.git"
   },
   "bugs": {
-    "url": "https://github.com/your-user/uniresp/issues"
+    "url": "https://github.com/Tien2003deptrai/uniresp_refs/issues"
   },
   "publishConfig": {
     "access": "public"
