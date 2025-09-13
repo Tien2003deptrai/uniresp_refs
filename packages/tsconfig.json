@@ -8,13 +8,7 @@
       "path": "./errors"
     },
     {
-      "path": "./client"
-    },
-    {
       "path": "./server-express"
     },
-    {
-      "path": "./server-next"
-    }
   ]
 }
