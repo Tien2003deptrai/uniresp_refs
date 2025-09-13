@@ -1,92 +1,88 @@
-# @uniresp/core
+# @uniresp/server-express
 
-> **VN (tóm tắt):** Bộ *types* và *helper* nhỏ gọn để chuẩn hoá response API với một format duy nhất:
-> `{ ok: true, data }` **hoặc** `{ ok: false, error }`.
+Express.js adapters for the `@uniresp` ecosystem:
+- **`errorHandler(opts?)`**: converts thrown `AppError` (and unknown errors) to the unified `ApiError` JSON.
+- **`asyncRoute(fn)`**: tiny helper to bubble async exceptions to the error handler.
 
 [![TypeScript](https://img.shields.io/badge/TypeScript-ready-blue.svg)](#)
+[![Express](https://img.shields.io/badge/Express-ready-blue.svg)](#)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](#)
-
-## Why
-A single, typed envelope for every HTTP/API response keeps clients simple and errors predictable.
-This package exposes:
-- **Types**: `ApiSuccess<T>`, `ApiError`, `ApiResponse<T>`
-- **Helpers**: `ok(data, meta?)`, `fail(code, message, details?, traceId?)`
 
 ## Install
 ```bash
-npm i @uniresp/core
+npm i @uniresp/server-express @uniresp/core @uniresp/errors express
 # or
-pnpm add @uniresp/core
+pnpm add @uniresp/server-express @uniresp/core @uniresp/errors express
 ```
 
-## Response shape
+> **Peer deps:** `express@^4` (v5 preview also works in most cases).
+
+## API
 ```ts
-type ApiSuccess<T> = {
-  ok: true
-  data: T
-  code?: string
-  meta?: Record<string, any>
+import type { Request } from 'express'
+import { errorHandler, asyncRoute } from '@uniresp/server-express'
+
+type Options = {
+  onLog?: (err: any, req: Request) => void
+  traceId?: (req: Request) => string | undefined
 }
-type ApiError = {
-  ok: false
-  error: {
-    code: string
-    message: string
-    details?: any
-    traceId?: string
-  }
-}
-type ApiResponse<T> = ApiSuccess<T> | ApiError
+
+const handler = errorHandler({
+  onLog: (err, req) => console.error('[ERR]', req.method, req.url, err),
+  traceId: (req) => req.headers['x-request-id'] as string | undefined,
+})
 ```
 
-## Helpers
+- **`onLog`**: hook to record/ship exceptions (pino, winston, APM…).
+- **`traceId`**: compute an id (e.g. from headers) and inject into the response’s `error.traceId`.
+
+## Usage with Express
 ```ts
-import { ok, fail } from '@uniresp/core'
+import express from 'express'
+import { asyncRoute, errorHandler } from '@uniresp/server-express'
+import { ok } from '@uniresp/core'
+import { NotFoundError } from '@uniresp/errors'
 
-// success
-return ok({ id: 1, name: 'Alice' }, { page: 1 })
+const app = express()
 
-// failure
-return fail('INPUT.VALIDATION', 'Invalid email', { field: 'email' }, 'req-123')
+app.get('/health', (_req, res) => res.json(ok({ up: true })))
+
+app.get('/users/:id', asyncRoute(async (req, res) => {
+  const user = await repo.findById(req.params.id)
+  if (!user) throw new NotFoundError('User not found')
+  res.json(ok(user))
+}))
+
+// 404 as AppError
+app.use((_req, _res, next) => next(new NotFoundError('Route not found')))
+
+// centralized JSON error output
+app.use(errorHandler({
+  onLog: (err, req) => console.error(err),
+  traceId: (req) => req.headers['x-request-id'] as string | undefined,
+}))
+
+app.listen(3000)
 ```
 
-## Server example
-```ts
-import { ok, fail, type ApiResponse } from '@uniresp/core'
-
-export type User = { id: number; name: string }
-
-// Any handler/service can return ApiResponse<User>
-async function getUser(id: number): Promise<ApiResponse<User>> {
-  const user = await db.user.findById(id)
-  if (!user) return fail('USER.NOT_FOUND', 'User not found')
-  return ok(user)
-}
+## Output examples
+**Success**
+```json
+{ "ok": true, "data": { "id": 1 }, "meta": { "page": 1 } }
 ```
-
-## Client example (type-narrowing)
-```ts
-import type { ApiResponse } from '@uniresp/core'
-import type { User } from './types'
-
-async function fetchUser(id: number) {
-  const res = await fetch(`/api/users/${id}`)
-  const body: ApiResponse<User> = await res.json()
-
-  if (!body.ok) {
-    // body is ApiError here
-    console.error(body.error.code, body.error.message)
-    throw new Error(body.error.message)
-  }
-  // body is ApiSuccess<User>
-  return body.data
-}
+**Error (thrown AppError)**
+```json
+{ "ok": false, "error": { "code": "RESOURCE.NOT_FOUND", "message": "User not found", "traceId": "req-123" } }
+```
+**Error (unknown)**
+```json
+{ "ok": false, "error": { "code": "SYS.UNKNOWN", "message": "Internal server error" } }
 ```
 
 ## Notes
-- `meta` is a free-form object for pagination, totals, etc.
-- `code` is a stable, machine-friendly identifier (keep it consistent across services).
-- `traceId` helps correlate logs/traces across systems (usually injected by a web adapter).
+- Keep business code throwing typed errors; let the adapter shape the response.
+- Prefer `asyncRoute` for concise route code without `try/catch` noise.
+- Works great together with `@uniresp/core` and `@uniresp/errors`.
 
 ## License
 MIT © 2025-present
