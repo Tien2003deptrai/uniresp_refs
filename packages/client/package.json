@@ -42,7 +42,9 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "prepublishOnly": "tsc -b"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@uniresp/core": "^0.1.2"
+  },
   "peerDependencies": {
     "react": ">=18"
   },

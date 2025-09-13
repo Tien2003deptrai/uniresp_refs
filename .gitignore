@@ -1,1 +1,17 @@
+# Dependencies
 node_modules
+
+# Build outputs
+dist
+*.tsbuildinfo
+
+# Logs
+*.log
+
+# IDE files
+.vscode
+.idea
+
+# OS generated files
+Thumbs.db
+.DS_Store

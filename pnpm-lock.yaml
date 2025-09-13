@@ -9,6 +9,10 @@ importers:
   .: {}
 
   packages/client:
+    dependencies:
+      '@uniresp/core':
+        specifier: ^0.1.2
+        version: 0.1.2
     devDependencies:
       '@types/react':
         specifier: ^18
@@ -33,6 +37,13 @@ importers:
         version: 5.9.2
 
   packages/server-express:
+    dependencies:
+      '@uniresp/core':
+        specifier: ^0.1.2
+        version: 0.1.2
+      '@uniresp/errors':
+        specifier: ^0.1.2
+        version: 0.1.2
     devDependencies:
       '@types/express':
         specifier: ^4.17.21
@@ -45,6 +56,13 @@ importers:
         version: 5.9.2
 
   packages/server-next:
+    dependencies:
+      '@uniresp/core':
+        specifier: ^0.1.2
+        version: 0.1.2
+      '@uniresp/errors':
+        specifier: ^0.1.2
+        version: 0.1.2
     devDependencies:
       next:
         specifier: ^15
@@ -272,6 +290,12 @@ packages:
 
   '@types/serve-static@1.15.8':
     resolution: {integrity: sha512-roei0UY3LhpOJvjbIP6ZZFngyLKl5dskOtDhxY5THRSpO+ZI+nzJ+m5yUMzGrp89YRa7lvknKkMYjqQFGwA7Sg==}
+
+  '@uniresp/core@0.1.2':
+    resolution: {integrity: sha512-J7mz1FuhxR1YJcV/gcOniAWD5SGEQ03+66fMhx3pAgMtN5T2sMTdtFbuVuf1jX8Ht50yguB74+x10tkdHZz/uw==}
+
+  '@uniresp/errors@0.1.2':
+    resolution: {integrity: sha512-GnPSNGUjuRSSTuuu33mmNnBTd2cB6FTEnKuOcD5/8rZ2vGJxkWtgXumR9cZL2/IpWutBrYRQ7IHxTZcHHgOaIw==}
 
   accepts@1.3.8:
     resolution: {integrity: sha512-PYAthTa2m2VKxuvSD3DPC/Gy+U+sOA1LAuT8mkmRuvw+NACSaeXEQ+NHcVF7rONl6qcaxV3Uuemwawk+7+SJLw==}
@@ -838,6 +862,10 @@ snapshots:
       '@types/http-errors': 2.0.5
       '@types/node': 24.3.1
       '@types/send': 0.17.5
+
+  '@uniresp/core@0.1.2': {}
+
+  '@uniresp/errors@0.1.2': {}
 
   accepts@1.3.8:
     dependencies:
