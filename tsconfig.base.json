@@ -15,12 +15,8 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@uniresp/core": [
-        "packages/core/src"
-      ],
-      "@uniresp/errors": [
-        "packages/errors/src"
-      ]
+      "@uniresp/core": ["packages/core/src"],
+      "@uniresp/errors": ["packages/errors/src"]
     }
   }
 }

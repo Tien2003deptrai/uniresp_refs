@@ -40,7 +40,9 @@
   "scripts": {
     "build": "tsc -b",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "prepublishOnly": "tsc -b"
+    "prepublishOnly": "tsc -b",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "dependencies": {
     "@uniresp/core": "^0.1.2",
