@@ -1,5 +1,6 @@
 export type ApiSuccess<T> = {
   ok: true;
+  message?: string;
   data: T;
   code?: string;
   meta?: Record<string, any>;
