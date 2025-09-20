@@ -1,5 +1,4 @@
 import { Router, type Request, type Response } from 'express';
-import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import { CreateUserSchema } from '../schemas';
 import { validate } from '../middleware/validation';
@@ -11,28 +10,28 @@ export function createUsersRouter(repo: MongoDBRepository): Router {
 
   router.get(
     '/',
-    asyncRoute((req: Request, res: Response) => controller.listUsers(req, res))
+    controller.listUsers
   );
 
   router.get(
     '/:id',
-    asyncRoute((req: Request, res: Response) => controller.getUser(req, res))
+    controller.getUser
   );
 
   router.post(
     '/',
     validate(CreateUserSchema),
-    asyncRoute((req: Request, res: Response) => controller.createUser(req, res))
+    controller.createUser
   );
 
   router.get(
     '/:id/profile',
-    asyncRoute((req: Request, res: Response) => controller.getUserProfile(req, res))
+    controller.getUserProfile
   );
 
   router.get(
     '/email/:email',
-    asyncRoute((req: Request, res: Response) => controller.getUserByEmail(req, res))
+    controller.getUserByEmail
   );
 
   return router;

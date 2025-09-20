@@ -1,6 +1,7 @@
 import { type Request, type Response } from 'express';
 import { ok } from '@uniresp/core';
 import { NotFoundError } from '@uniresp/errors';
+import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import { type CreateCommentInput } from '../schemas';
 import { BaseController } from './BaseController';
@@ -10,7 +11,7 @@ export class CommentController extends BaseController {
     super();
   }
 
-  async getCommentsByArticle(req: Request, res: Response): Promise<void> {
+  getCommentsByArticle = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const article = await this.repo.getArticle(req.params.articleId);
     if (!article) {
       this.notFoundError('Article not found', {
@@ -26,9 +27,9 @@ export class CommentController extends BaseController {
         articleTitle: article.title,
       })
     );
-  }
+  });
 
-  async createComment(req: Request, res: Response): Promise<void> {
+  createComment = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const comment = await this.repo.createComment(req.body as CreateCommentInput);
     res.status(201).json(
       ok(comment, {
@@ -37,9 +38,9 @@ export class CommentController extends BaseController {
         authorName: (comment.userId as any)?.name || 'Unknown User',
       })
     );
-  }
+  });
 
-  async getComment(req: Request, res: Response): Promise<void> {
+  getComment = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const comment = await this.repo.getComment(req.params.id);
     if (!comment) {
       this.notFoundError('Comment not found', {
@@ -47,9 +48,9 @@ export class CommentController extends BaseController {
       });
     }
     res.json(ok(comment));
-  }
+  });
 
-  async deleteComment(req: Request, res: Response): Promise<void> {
+  deleteComment = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const comment = await this.repo.getComment(req.params.id);
     if (!comment) {
       this.notFoundError('Comment not found', {
@@ -59,9 +60,9 @@ export class CommentController extends BaseController {
 
     await this.repo.deleteComment(req.params.id);
     res.status(204).send();
-  }
+  });
 
-  async getCommentsByUser(req: Request, res: Response): Promise<void> {
+  getCommentsByUser = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const user = await this.repo.getUser(req.params.userId);
     if (!user) {
       this.notFoundError('User not found', {
@@ -77,5 +78,5 @@ export class CommentController extends BaseController {
         count: userComments.length,
       })
     );
-  }
+  });
 }

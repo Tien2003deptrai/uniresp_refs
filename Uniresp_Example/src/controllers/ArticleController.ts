@@ -1,12 +1,13 @@
 import { type Request, type Response } from 'express';
 import { ok } from '@uniresp/core';
 import { NotFoundError } from '@uniresp/errors';
+import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import {
   type CreateArticleInput,
   type UpdateArticleInput
 } from '../schemas';
-import { calculateReadingTime } from '../utils';
+import { pick, calculateReadingTime } from '../utils';
 import { BaseController } from './BaseController';
 
 export class ArticleController extends BaseController {
@@ -14,7 +15,7 @@ export class ArticleController extends BaseController {
     super();
   }
 
-  async listArticles(req: Request, res: Response): Promise<void> {
+  listArticles = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const { page, limit, ...filters } = req.query as any;
     const result = await this.repo.listArticles(filters, { page, limit });
 
@@ -31,9 +32,9 @@ export class ArticleController extends BaseController {
         timestamp: new Date().toISOString(),
       })
     );
-  }
+  });
 
-  async searchArticles(req: Request, res: Response): Promise<void> {
+  searchArticles = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const { page, limit, ...filters } = req.query as any;
     const result = await this.repo.listArticles(filters, { page, limit });
 
@@ -45,9 +46,9 @@ export class ArticleController extends BaseController {
         searchId: Math.random().toString(36).substr(2, 9),
       })
     );
-  }
+  });
 
-  async getArticle(req: Request, res: Response): Promise<void> {
+  getArticle = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const article = await this.repo.getArticle(req.params.id);
     if (!article) {
       this.notFoundError('Article not found', {
@@ -61,9 +62,9 @@ export class ArticleController extends BaseController {
         lastAccessed: new Date().toISOString(),
       })
     );
-  }
+  });
 
-  async getArticleDetails(req: Request, res: Response): Promise<void> {
+  getArticleDetails = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const article = await this.repo.getArticle(req.params.id);
     if (!article) {
       this.notFoundError('Article not found', {
@@ -80,9 +81,9 @@ export class ArticleController extends BaseController {
         version: '1.0.0',
       })
     );
-  }
+  });
 
-  async createArticle(req: Request, res: Response): Promise<void> {
+  createArticle = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const created = await this.repo.createArticle(req.body as CreateArticleInput);
 
     res.status(201).json(
@@ -93,9 +94,9 @@ export class ArticleController extends BaseController {
         timestamp: new Date().toISOString(),
       })
     );
-  }
+  });
 
-  async updateArticle(req: Request, res: Response): Promise<void> {
+  updateArticle = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const updated = await this.repo.updateArticle(
       req.params.id,
       req.body as UpdateArticleInput
@@ -114,9 +115,9 @@ export class ArticleController extends BaseController {
         timestamp: new Date().toISOString(),
       })
     );
-  }
+  });
 
-  async deleteArticle(req: Request, res: Response): Promise<void> {
+  deleteArticle = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const deleted = await this.repo.deleteArticle(req.params.id);
     if (!deleted) {
       this.notFoundError('Article not found', {
@@ -124,5 +125,5 @@ export class ArticleController extends BaseController {
       });
     }
     res.status(204).send();
-  }
+  });
 }

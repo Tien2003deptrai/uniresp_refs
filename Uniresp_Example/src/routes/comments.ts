@@ -1,5 +1,4 @@
 import { Router, type Request, type Response } from 'express';
-import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import { CreateCommentSchema } from '../schemas';
 import { validate } from '../middleware/validation';
@@ -11,28 +10,28 @@ export function createCommentsRouter(repo: MongoDBRepository): Router {
 
   router.get(
     '/article/:articleId',
-    asyncRoute((req: Request, res: Response) => controller.getCommentsByArticle(req, res))
+    controller.getCommentsByArticle
   );
 
   router.post(
     '/',
     validate(CreateCommentSchema),
-    asyncRoute((req: Request, res: Response) => controller.createComment(req, res))
+    controller.createComment
   );
 
   router.get(
     '/:id',
-    asyncRoute((req: Request, res: Response) => controller.getComment(req, res))
+    controller.getComment
   );
 
   router.delete(
     '/:id',
-    asyncRoute((req: Request, res: Response) => controller.deleteComment(req, res))
+    controller.deleteComment
   );
 
   router.get(
     '/user/:userId',
-    asyncRoute((req: Request, res: Response) => controller.getCommentsByUser(req, res))
+    controller.getCommentsByUser
   );
 
   return router;

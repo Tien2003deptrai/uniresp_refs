@@ -1,5 +1,4 @@
 import { Router, type Request, type Response } from 'express';
-import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import {
   CreateArticleSchema,
@@ -17,40 +16,40 @@ export function createArticlesRouter(repo: MongoDBRepository): Router {
   router.get(
     '/',
     validateQuery(ArticleQuerySchema),
-    asyncRoute((req: Request, res: Response) => controller.listArticles(req, res))
+    controller.listArticles
   );
 
   router.get(
     '/search',
     validateQuery(ArticleSearchSchema),
-    asyncRoute((req: Request, res: Response) => controller.searchArticles(req, res))
+    controller.searchArticles
   );
 
   router.get(
     '/:id',
-    asyncRoute((req: Request, res: Response) => controller.getArticle(req, res))
+    controller.getArticle
   );
 
   router.get(
     '/:id/details',
-    asyncRoute((req: Request, res: Response) => controller.getArticleDetails(req, res))
+    controller.getArticleDetails
   );
 
   router.post(
     '/',
     validate(CreateArticleSchema),
-    asyncRoute((req: Request, res: Response) => controller.createArticle(req, res))
+    controller.createArticle
   );
 
   router.put(
     '/:id',
     validate(UpdateArticleSchema),
-    asyncRoute((req: Request, res: Response) => controller.updateArticle(req, res))
+    controller.updateArticle
   );
 
   router.delete(
     '/:id',
-    asyncRoute((req: Request, res: Response) => controller.deleteArticle(req, res))
+    controller.deleteArticle
   );
 
   return router;
