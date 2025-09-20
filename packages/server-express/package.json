@@ -1,17 +1,18 @@
 {
   "name": "@uniresp/server-express",
-  "version": "0.1.7",
-  "type": "module",
+  "version": "0.1.10",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
     },
     "./express": {
       "types": "./dist/express.d.ts",
-      "import": "./dist/express.js"
+      "import": "./dist/express.js",
+      "require": "./dist/express.js"
     }
   },
   "files": [
@@ -49,8 +50,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@uniresp/core": "^0.1.11",
-    "@uniresp/errors": "^0.1.6"
+    "@uniresp/core": "^0.1.12",
+    "@uniresp/errors": "^0.1.7"
   },
   "peerDependencies": {
     "express": ">=4"
