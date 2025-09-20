@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import { fail } from '@uniresp/core';
-import { AppError } from '@uniresp/errors';
+import { fail } from '../../core/src/response.js';
+import { AppError } from '../../errors/src/errors.js';
 
 type Options = {
   onLog?: (err: any, req: Request) => void;

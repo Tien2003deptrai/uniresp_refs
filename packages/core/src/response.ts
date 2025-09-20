@@ -1,4 +1,4 @@
-import type { ApiSuccess, ApiError } from './types';
+import type { ApiSuccess, ApiError } from './types.js';
 export const ok = <T>(data: T, meta?: Record<string, any>): ApiSuccess<T> => ({
   ok: true,
   data,
