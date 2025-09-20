@@ -27,16 +27,14 @@ export class UserController extends BaseController {
       this.notFoundError('User not found', { userId: req.params.id });
     }
 
-    res.json(ok(this.pick(user, ['id', 'name', 'email', 'role'])));
+    const result = this.pick(user, ['id', 'name', 'email', 'role']);
+    res.json(ok(result, { message: 'Get user successfully', }));
   });
 
   createUser = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const user = await this.repo.createUser(req.body as CreateUserInput);
-    res.status(201).json(
-      ok(user, {
-        message: 'User created successfully',
-      })
-    );
+
+    res.status(201).json(ok(user, { message: 'User created successfully', }));
   });
 
   getUserProfile = asyncRoute(async (req: Request, res: Response): Promise<void> => {
@@ -45,11 +43,7 @@ export class UserController extends BaseController {
       this.notFoundError('User not found', { userId: req.params.id });
     }
 
-    res.json(
-      ok(user, {
-        message: 'Get user profile successfully',
-      })
-    );
+    res.json(ok(user, { message: 'Get user profile successfully', }));
   });
 
   getUserByEmail = asyncRoute(async (req: Request, res: Response): Promise<void> => {

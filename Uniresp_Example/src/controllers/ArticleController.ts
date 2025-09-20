@@ -43,9 +43,9 @@ export class ArticleController extends BaseController {
         articleId: req.params.id,
       });
     }
+    const result = this.pick(article, ['_id', 'title', 'content', 'author']);
 
-    res.json(ok(this.pick(article, ['_id', 'title', 'content', 'author']))
-    );
+    res.json(ok(result, { message: "Article details" }))
   });
 
   getArticleDetails = asyncRoute(async (req: Request, res: Response): Promise<void> => {

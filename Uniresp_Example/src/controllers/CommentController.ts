@@ -59,8 +59,6 @@ export class CommentController extends BaseController {
     }
 
     const userComments = await this.repo.getCommentsByUser(req.params.userId);
-    res.json(
-      ok(userComments, { message: 'Get list comments successfully', })
-    );
+    res.json(ok(userComments, { message: 'Get list comments successfully', }));
   });
 }
