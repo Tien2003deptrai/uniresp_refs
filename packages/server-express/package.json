@@ -1,6 +1,6 @@
 {
   "name": "@uniresp/server-express",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -49,8 +49,8 @@
     "format:check": "prettier --check ."
   },
   "dependencies": {
-    "@uniresp/core": "^0.1.2",
-    "@uniresp/errors": "^0.1.2"
+    "@uniresp/core": "^0.1.11",
+    "@uniresp/errors": "^0.1.6"
   },
   "peerDependencies": {
     "express": ">=4"
