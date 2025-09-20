@@ -12,7 +12,7 @@ A single, typed envelope for every HTTP/API response keeps clients simple and er
 This package exposes:
 
 - **Types**: `ApiSuccess<T>`, `ApiError`, `ApiResponse<T>`
-- **Helpers**: `ok(data, meta?)`, `fail(code, message, details?, traceId?)`
+- **Helpers**: `ok(data, options?)`, `fail(code, message, details?, traceId?)`
 
 ## Install
 
@@ -27,6 +27,7 @@ pnpm add @uniresp/core
 ```ts
 type ApiSuccess<T> = {
   ok: true;
+  message?: string;
   data: T;
   code?: string;
   meta?: Record<string, any>;
@@ -49,7 +50,7 @@ type ApiResponse<T> = ApiSuccess<T> | ApiError;
 import { ok, fail } from '@uniresp/core';
 
 // success
-return ok({ id: 1, name: 'Alice' }, { page: 1 });
+return ok({ id: 1, name: 'Alice' }, { message: 'User retrieved successfully', page: 1 });
 
 // failure
 return fail('INPUT.VALIDATION', 'Invalid email', { field: 'email' }, 'req-123');
@@ -66,7 +67,7 @@ export type User = { id: number; name: string };
 async function getUser(id: number): Promise<ApiResponse<User>> {
   const user = await db.user.findById(id);
   if (!user) return fail('USER.NOT_FOUND', 'User not found');
-  return ok(user);
+  return ok(user, { message: 'User retrieved successfully' });
 }
 ```
 
@@ -86,12 +87,14 @@ async function fetchUser(id: number) {
     throw new Error(body.error.message);
   }
   // body is ApiSuccess<User>
+  console.log(body.message); // Optional success message
   return body.data;
 }
 ```
 
 ## Notes
 
+- `message` is an optional success message for successful responses.
 - `meta` is a free-form object for pagination, totals, etc.
 - `code` is a stable, machine-friendly identifier (keep it consistent across services).
 - `traceId` helps correlate logs/traces across systems (usually injected by a web adapter).

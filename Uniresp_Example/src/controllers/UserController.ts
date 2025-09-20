@@ -14,7 +14,9 @@ export class UserController extends BaseController {
     const users = await this.repo.listUsers();
     res.json(
       ok(users, {
-        count: users.length,
+        meta: {
+          total: users.length,
+        },
       })
     );
   });
@@ -45,7 +47,7 @@ export class UserController extends BaseController {
 
     res.json(
       ok(user, {
-        profileType: 'detailed',
+        message: 'Get user profile successfully',
       })
     );
   });

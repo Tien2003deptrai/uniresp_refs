@@ -1,6 +1,5 @@
 import { type Request, type Response } from 'express';
 import { ok } from '@uniresp/core';
-import { NotFoundError } from '@uniresp/errors';
 import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import {
@@ -28,9 +27,11 @@ export class ArticleController extends BaseController {
     res.json(
       ok(articles, {
         message: "Articles listed successfully",
-        pagination: result.meta,
-        filters,
-        searchQuery: req.query.q || null,
+        meta: {
+          pagination: result.meta,
+          filters,
+          searchQuery: req.query.q || null,
+        }
       })
     );
   });
