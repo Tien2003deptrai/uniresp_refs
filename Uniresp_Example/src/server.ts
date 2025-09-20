@@ -42,23 +42,6 @@ app.get('/api/health', (_req, res) => {
         timestamp: new Date().toISOString(),
         version: '1.0.0',
         environment: process.env.NODE_ENV || 'development',
-      },
-      {
-        services: {
-          database: 'in-memory',
-          cache: 'none',
-          logging: 'console',
-        },
-        features: [
-          'Articles CRUD',
-          'Users Management',
-          'Comments System',
-          'Advanced Search',
-          'Pagination',
-          'Error Handling',
-          'Validation',
-          'Demo Endpoints',
-        ],
       }
     )
   );
