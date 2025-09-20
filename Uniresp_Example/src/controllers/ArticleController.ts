@@ -27,6 +27,7 @@ export class ArticleController extends BaseController {
 
     res.json(
       ok(articles, {
+        message: "Articles listed successfully",
         pagination: result.meta,
         filters,
         searchQuery: req.query.q || null,

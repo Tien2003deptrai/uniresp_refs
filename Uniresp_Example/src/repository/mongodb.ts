@@ -10,10 +10,7 @@ import type {
 import { NotFoundError, ValidationError } from '@uniresp/errors';
 import { Types, Document } from 'mongoose';
 
-// Simplified base functions for common CRUD operations
-const validateId = (id: string): boolean => {
-  return Types.ObjectId.isValid(id);
-};
+const validateId = (id: string): boolean => Types.ObjectId.isValid(id);
 
 const createEntity = async <T extends Document>(model: any, data: any): Promise<T> => {
   try {
@@ -28,10 +25,7 @@ const createEntity = async <T extends Document>(model: any, data: any): Promise<
 };
 
 const findById = async <T extends Document>(model: any, id: string): Promise<T | null> => {
-  if (!validateId(id)) {
-    return null;
-  }
-
+  if (!validateId(id)) return null;
   try {
     return await model.findById(id).lean();
   } catch (error: any) {
@@ -39,29 +33,25 @@ const findById = async <T extends Document>(model: any, id: string): Promise<T |
   }
 };
 
-const updateEntity = async <T extends Document>(model: any, id: string, data: any): Promise<T | null> => {
-  if (!validateId(id)) {
-    return null;
-  }
-
+const updateEntity = async <T extends Document>(
+  model: any,
+  id: string,
+  data: any
+): Promise<T | null> => {
+  if (!validateId(id)) return null;
   try {
-    const entity = await model.findByIdAndUpdate(
+    return await model.findByIdAndUpdate(
       id,
       { ...data, updatedAt: new Date() },
       { new: true, runValidators: true }
     ).lean();
-
-    return entity;
   } catch (error: any) {
     throw new Error(`Failed to update entity: ${error.message}`);
   }
 };
 
 const deleteEntity = async <T extends Document>(model: any, id: string): Promise<T | null> => {
-  if (!validateId(id)) {
-    return null;
-  }
-
+  if (!validateId(id)) return null;
   try {
     return await model.findByIdAndDelete(id).lean();
   } catch (error: any) {
@@ -77,44 +67,55 @@ const findAll = async <T extends Document>(model: any): Promise<T[]> => {
   }
 };
 
+const paginate = (
+  page: number = 1,
+  limit: number = 10
+): { skip: number, limit: number, page: number } => ({
+  skip: (page - 1) * limit,
+  limit,
+  page
+});
+
+const buildSearchQuery = (filters?: SearchFilters): any => {
+  const query: any = {};
+
+  if (filters?.query) {
+    query.$text = { $search: filters.query };
+  }
+
+  if (filters?.author) {
+    query.author = { $regex: filters.author, $options: 'i' };
+  }
+
+  if (filters?.dateFrom || filters?.dateTo) {
+    query.createdAt = {};
+    if (filters.dateFrom) {
+      query.createdAt.$gte = new Date(filters.dateFrom);
+    }
+    if (filters.dateTo) {
+      query.createdAt.$lte = new Date(filters.dateTo);
+    }
+  }
+
+  return query;
+};
+
+const buildSortOptions = (filters?: SearchFilters): any => {
+  if (filters?.sortBy) {
+    return { [filters.sortBy]: filters.sortOrder === 'desc' ? -1 : 1 };
+  }
+  return { createdAt: -1 }; // Default sort by newest
+};
+
 export class MongoDBRepository {
   // Article methods
   async listArticles(
     filters?: SearchFilters,
     pagination?: PaginationInput
   ): Promise<{ data: IArticle[]; meta: any }> {
-    const page = pagination?.page || 1;
-    const limit = pagination?.limit || 10;
-    const skip = (page - 1) * limit;
-
-    // Build query
-    const query: any = {};
-
-    if (filters?.query) {
-      query.$text = { $search: filters.query };
-    }
-
-    if (filters?.author) {
-      query.author = { $regex: filters.author, $options: 'i' };
-    }
-
-    if (filters?.dateFrom || filters?.dateTo) {
-      query.createdAt = {};
-      if (filters.dateFrom) {
-        query.createdAt.$gte = new Date(filters.dateFrom);
-      }
-      if (filters.dateTo) {
-        query.createdAt.$lte = new Date(filters.dateTo);
-      }
-    }
-
-    // Build sort
-    const sort: any = {};
-    if (filters?.sortBy) {
-      sort[filters.sortBy] = filters.sortOrder === 'desc' ? -1 : 1;
-    } else {
-      sort.createdAt = -1; // Default sort by newest
-    }
+    const { page, limit, skip } = paginate(pagination?.page, pagination?.limit);
+    const query = buildSearchQuery(filters);
+    const sort = buildSortOptions(filters);
 
     try {
       const [articles, total] = await Promise.all([
@@ -211,10 +212,7 @@ export class MongoDBRepository {
 
   // Comment methods
   async getCommentsByArticle(articleId: string): Promise<IComment[]> {
-    if (!Types.ObjectId.isValid(articleId)) {
-      return [];
-    }
-
+    if (!Types.ObjectId.isValid(articleId)) return [];
     try {
       return await Comment.find({ articleId: new Types.ObjectId(articleId) })
         .populate('userId', 'name email')
@@ -226,10 +224,7 @@ export class MongoDBRepository {
   }
 
   async getCommentsByUser(userId: string): Promise<IComment[]> {
-    if (!Types.ObjectId.isValid(userId)) {
-      return [];
-    }
-
+    if (!Types.ObjectId.isValid(userId)) return [];
     try {
       return await Comment.find({ userId: new Types.ObjectId(userId) })
         .populate('articleId', 'title')
