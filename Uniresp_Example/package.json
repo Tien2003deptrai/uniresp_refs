@@ -17,7 +17,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@uniresp/core": "^0.1.12",
+    "@uniresp/core": "^0.1.13",
     "@uniresp/errors": "^0.1.7",
     "@uniresp/server-express": "^0.1.10",
     "dotenv": "^17.2.2",

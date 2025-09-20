@@ -35,7 +35,7 @@ export class CommentController extends BaseController {
         commentId: req.params.id,
       });
     }
-    res.json(ok(comment, { message: 'Get comment successfully' }));
+    res.json(ok(comment, { message: 'Get comment successfully', }));
   });
 
   deleteComment = asyncRoute(async (req: Request, res: Response): Promise<void> => {
@@ -47,7 +47,7 @@ export class CommentController extends BaseController {
     }
 
     await this.repo.deleteComment(req.params.id);
-    res.status(204).send();
+    res.json(ok({ message: 'Delete comment successfully', }));
   });
 
   getCommentsByUser = asyncRoute(async (req: Request, res: Response): Promise<void> => {
@@ -60,11 +60,7 @@ export class CommentController extends BaseController {
 
     const userComments = await this.repo.getCommentsByUser(req.params.userId);
     res.json(
-      ok(userComments, {
-        userId: req.params.userId,
-        userName: user.name,
-        count: userComments.length,
-      })
+      ok(userComments, { message: 'Get list comments successfully', })
     );
   });
 }
