@@ -1,10 +1,8 @@
 import { type Request, type Response } from 'express';
 import { ok } from '@uniresp/core';
-import { NotFoundError } from '@uniresp/errors';
 import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import { type CreateUserInput } from '../schemas';
-import { pick } from '../utils';
 import { BaseController } from './BaseController';
 
 export class UserController extends BaseController {
@@ -27,7 +25,7 @@ export class UserController extends BaseController {
       this.notFoundError('User not found', { userId: req.params.id });
     }
 
-    res.json(ok(this.pick(user, ['id', 'name', 'email', 'role', 'createdAt'])));
+    res.json(ok(this.pick(user, ['id', 'name', 'email', 'role'])));
   });
 
   createUser = asyncRoute(async (req: Request, res: Response): Promise<void> => {

@@ -20,12 +20,6 @@ export function createArticlesRouter(repo: MongoDBRepository): Router {
   );
 
   router.get(
-    '/search',
-    validateQuery(ArticleSearchSchema),
-    controller.searchArticles
-  );
-
-  router.get(
     '/:id',
     controller.getArticle
   );

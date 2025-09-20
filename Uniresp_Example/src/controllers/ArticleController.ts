@@ -7,7 +7,6 @@ import {
   type CreateArticleInput,
   type UpdateArticleInput
 } from '../schemas';
-import { pick, calculateReadingTime } from '../utils';
 import { BaseController } from './BaseController';
 
 export class ArticleController extends BaseController {
@@ -16,34 +15,21 @@ export class ArticleController extends BaseController {
   }
 
   listArticles = asyncRoute(async (req: Request, res: Response): Promise<void> => {
-    const { page, limit, ...filters } = req.query as any;
+    const page = req.query.page ? parseInt(req.query.page as string) : 1;
+    const limit = req.query.limit ? parseInt(req.query.limit as string) : 10;
+    const filters: any = {};
+
     const result = await this.repo.listArticles(filters, { page, limit });
 
-    const articlesWithReadingTime = result.data.map(article => ({
+    const articles = result.data.map(article => ({
       ...article,
-      readingTime: calculateReadingTime(article.content),
     }));
 
     res.json(
-      ok(articlesWithReadingTime, {
+      ok(articles, {
         pagination: result.meta,
         filters,
         searchQuery: req.query.q || null,
-        timestamp: new Date().toISOString(),
-      })
-    );
-  });
-
-  searchArticles = asyncRoute(async (req: Request, res: Response): Promise<void> => {
-    const { page, limit, ...filters } = req.query as any;
-    const result = await this.repo.listArticles(filters, { page, limit });
-
-    res.json(
-      ok(result.data, {
-        pagination: result.meta,
-        searchCriteria: filters,
-        timestamp: new Date().toISOString(),
-        searchId: Math.random().toString(36).substr(2, 9),
       })
     );
   });
@@ -56,11 +42,7 @@ export class ArticleController extends BaseController {
       });
     }
 
-    res.json(
-      ok(this.pick(article, ['_id', 'title', 'content', 'author']), {
-        readingTime: calculateReadingTime(article.content),
-        lastAccessed: new Date().toISOString(),
-      })
+    res.json(ok(this.pick(article, ['_id', 'title', 'content', 'author']))
     );
   });
 
@@ -72,27 +54,13 @@ export class ArticleController extends BaseController {
       });
     }
 
-    res.json(
-      ok(article, {
-        readingTime: calculateReadingTime(article.content),
-        wordCount: article.content.split(/\s+/).length,
-        characterCount: article.content.length,
-        lastAccessed: new Date().toISOString(),
-        version: '1.0.0',
-      })
-    );
+    res.json(ok(article, { message: 'Article detail' }));
   });
 
   createArticle = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const created = await this.repo.createArticle(req.body as CreateArticleInput);
 
-    res.status(201).json(
-      ok(created, {
-        message: 'Article created successfully',
-        readingTime: calculateReadingTime(created.content),
-        wordCount: created.content.split(/\s+/).length,
-        timestamp: new Date().toISOString(),
-      })
+    res.status(201).json(ok(created, { message: 'Article created successfully' })
     );
   });
 
@@ -107,14 +75,7 @@ export class ArticleController extends BaseController {
       });
     }
 
-    res.json(
-      ok(updated, {
-        message: 'Article updated successfully',
-        readingTime: calculateReadingTime(updated.content),
-        wordCount: updated.content.split(/\s+/).length,
-        timestamp: new Date().toISOString(),
-      })
-    );
+    res.json(ok(updated, { message: 'Article updated successfully' }));
   });
 
   deleteArticle = asyncRoute(async (req: Request, res: Response): Promise<void> => {
@@ -124,6 +85,6 @@ export class ArticleController extends BaseController {
         articleId: req.params.id,
       });
     }
-    res.status(204).send();
+    res.json(ok({ message: 'Article deleted successfully' }));
   });
 }

@@ -1,6 +1,5 @@
 import { type Request, type Response } from 'express';
 import { ok } from '@uniresp/core';
-import { NotFoundError } from '@uniresp/errors';
 import { asyncRoute } from '@uniresp/server-express';
 import { MongoDBRepository } from '../repository/mongodb';
 import { type CreateCommentInput } from '../schemas';
@@ -20,24 +19,13 @@ export class CommentController extends BaseController {
     }
 
     const comments = await this.repo.getCommentsByArticle(req.params.articleId);
-    res.json(
-      ok(comments, {
-        articleId: req.params.articleId,
-        count: comments.length,
-        articleTitle: article.title,
-      })
-    );
+    res.json(ok(comments, { message: "Get list comments successfully" }));
   });
 
   createComment = asyncRoute(async (req: Request, res: Response): Promise<void> => {
     const comment = await this.repo.createComment(req.body as CreateCommentInput);
-    res.status(201).json(
-      ok(comment, {
-        message: 'Comment created successfully',
-        articleTitle: (comment.articleId as any)?.title || 'Unknown Article',
-        authorName: (comment.userId as any)?.name || 'Unknown User',
-      })
-    );
+
+    res.status(201).json(ok(comment, { message: 'Comment created successfully', }));
   });
 
   getComment = asyncRoute(async (req: Request, res: Response): Promise<void> => {
@@ -47,7 +35,7 @@ export class CommentController extends BaseController {
         commentId: req.params.id,
       });
     }
-    res.json(ok(comment));
+    res.json(ok(comment, { message: 'Get comment successfully' }));
   });
 
   deleteComment = asyncRoute(async (req: Request, res: Response): Promise<void> => {

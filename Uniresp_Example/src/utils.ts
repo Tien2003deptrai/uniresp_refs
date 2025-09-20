@@ -52,11 +52,3 @@ export const sanitizeString = (input: string): string => {
   return input.trim().replace(/[<>]/g, '');
 };
 
-/**
- * Calculate reading time for content
- */
-export const calculateReadingTime = (content: string): number => {
-  const wordsPerMinute = 200;
-  const wordCount = content.split(/\s+/).length;
-  return Math.ceil(wordCount / wordsPerMinute);
-};
