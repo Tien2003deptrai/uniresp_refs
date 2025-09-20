@@ -8,7 +8,74 @@ import type {
   PaginationInput,
 } from '../schemas';
 import { NotFoundError, ValidationError } from '@uniresp/errors';
-import { Types } from 'mongoose';
+import { Types, Document } from 'mongoose';
+
+// Simplified base functions for common CRUD operations
+const validateId = (id: string): boolean => {
+  return Types.ObjectId.isValid(id);
+};
+
+const createEntity = async <T extends Document>(model: any, data: any): Promise<T> => {
+  try {
+    const entity = new model(data);
+    return await entity.save();
+  } catch (error: any) {
+    if (error.code === 11000) {
+      throw new ValidationError({}, 'Entity already exists');
+    }
+    throw new Error(`Failed to create entity: ${error.message}`);
+  }
+};
+
+const findById = async <T extends Document>(model: any, id: string): Promise<T | null> => {
+  if (!validateId(id)) {
+    return null;
+  }
+
+  try {
+    return await model.findById(id).lean();
+  } catch (error: any) {
+    throw new Error(`Failed to retrieve entity: ${error.message}`);
+  }
+};
+
+const updateEntity = async <T extends Document>(model: any, id: string, data: any): Promise<T | null> => {
+  if (!validateId(id)) {
+    return null;
+  }
+
+  try {
+    const entity = await model.findByIdAndUpdate(
+      id,
+      { ...data, updatedAt: new Date() },
+      { new: true, runValidators: true }
+    ).lean();
+
+    return entity;
+  } catch (error: any) {
+    throw new Error(`Failed to update entity: ${error.message}`);
+  }
+};
+
+const deleteEntity = async <T extends Document>(model: any, id: string): Promise<T | null> => {
+  if (!validateId(id)) {
+    return null;
+  }
+
+  try {
+    return await model.findByIdAndDelete(id).lean();
+  } catch (error: any) {
+    throw new Error(`Failed to delete entity: ${error.message}`);
+  }
+};
+
+const findAll = async <T extends Document>(model: any): Promise<T[]> => {
+  try {
+    return await model.find().sort({ createdAt: -1 }).lean();
+  } catch (error: any) {
+    throw new Error(`Failed to retrieve entities: ${error.message}`);
+  }
+};
 
 export class MongoDBRepository {
   // Article methods
@@ -72,29 +139,20 @@ export class MongoDBRepository {
   }
 
   async getArticle(id: string): Promise<IArticle | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      return await Article.findById(id).lean();
-    } catch (error) {
-      throw new Error('Failed to retrieve article');
-    }
+    return findById<IArticle>(Article, id);
   }
 
   async createArticle(data: CreateArticleInput): Promise<IArticle> {
     try {
-      const article = new Article(data);
-      return await article.save();
+      return await createEntity<IArticle>(Article, data);
     } catch (error: any) {
-      if (error.code === 11000) {
+      if (error instanceof ValidationError) {
         throw new ValidationError(
           { title: data.title },
           'Article with this title already exists'
         );
       }
-      throw new Error('Failed to create article');
+      throw error;
     }
   }
 
@@ -102,76 +160,41 @@ export class MongoDBRepository {
     id: string,
     data: UpdateArticleInput
   ): Promise<IArticle | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      const article = await Article.findByIdAndUpdate(
-        id,
-        { ...data, updatedAt: new Date() },
-        { new: true, runValidators: true }
-      ).lean();
-
-      return article;
-    } catch (error) {
-      throw new Error('Failed to update article');
-    }
+    return updateEntity<IArticle>(Article, id, data);
   }
 
   async deleteArticle(id: string): Promise<IArticle | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      return await Article.findByIdAndDelete(id).lean();
-    } catch (error) {
-      throw new Error('Failed to delete article');
-    }
+    return deleteEntity<IArticle>(Article, id);
   }
 
   // User methods
   async listUsers(): Promise<IUser[]> {
-    try {
-      return await User.find().sort({ createdAt: -1 }).lean();
-    } catch (error) {
-      throw new Error('Failed to retrieve users');
-    }
+    return findAll<IUser>(User);
   }
 
   async getUser(id: string): Promise<IUser | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      return await User.findById(id).lean();
-    } catch (error) {
-      throw new Error('Failed to retrieve user');
-    }
+    return findById<IUser>(User, id);
   }
 
   async getUserByEmail(email: string): Promise<IUser | null> {
     try {
       return await User.findOne({ email: email.toLowerCase() }).lean();
-    } catch (error) {
+    } catch (error: any) {
       throw new Error('Failed to retrieve user');
     }
   }
 
   async createUser(data: CreateUserInput): Promise<IUser> {
     try {
-      const user = new User(data);
-      return await user.save();
+      return await createEntity<IUser>(User, data);
     } catch (error: any) {
-      if (error.code === 11000) {
+      if (error instanceof ValidationError) {
         throw new ValidationError(
           { email: data.email },
           'User with this email already exists'
         );
       }
-      throw new Error('Failed to create user');
+      throw error;
     }
   }
 
@@ -179,33 +202,11 @@ export class MongoDBRepository {
     id: string,
     data: Partial<CreateUserInput>
   ): Promise<IUser | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      const user = await User.findByIdAndUpdate(
-        id,
-        { ...data, updatedAt: new Date() },
-        { new: true, runValidators: true }
-      ).lean();
-
-      return user;
-    } catch (error) {
-      throw new Error('Failed to update user');
-    }
+    return updateEntity<IUser>(User, id, data);
   }
 
   async deleteUser(id: string): Promise<IUser | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      return await User.findByIdAndDelete(id).lean();
-    } catch (error) {
-      throw new Error('Failed to delete user');
-    }
+    return deleteEntity<IUser>(User, id);
   }
 
   // Comment methods
@@ -219,7 +220,7 @@ export class MongoDBRepository {
         .populate('userId', 'name email')
         .sort({ createdAt: -1 })
         .lean();
-    } catch (error) {
+    } catch (error: any) {
       throw new Error('Failed to retrieve comments');
     }
   }
@@ -234,24 +235,13 @@ export class MongoDBRepository {
         .populate('articleId', 'title')
         .sort({ createdAt: -1 })
         .lean();
-    } catch (error) {
+    } catch (error: any) {
       throw new Error('Failed to retrieve comments');
     }
   }
 
   async getComment(id: string): Promise<IComment | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      return await Comment.findById(id)
-        .populate('userId', 'name email')
-        .populate('articleId', 'title')
-        .lean();
-    } catch (error) {
-      throw new Error('Failed to retrieve comment');
-    }
+    return findById<IComment>(Comment, id);
   }
 
   async createComment(data: CreateCommentInput): Promise<IComment> {
@@ -279,7 +269,7 @@ export class MongoDBRepository {
       });
 
       return await comment.save();
-    } catch (error) {
+    } catch (error: any) {
       throw new Error('Failed to create comment');
     }
   }
@@ -288,36 +278,11 @@ export class MongoDBRepository {
     id: string,
     data: Partial<CreateCommentInput>
   ): Promise<IComment | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      const comment = await Comment.findByIdAndUpdate(
-        id,
-        { ...data, updatedAt: new Date() },
-        { new: true, runValidators: true }
-      )
-        .populate('userId', 'name email')
-        .populate('articleId', 'title')
-        .lean();
-
-      return comment;
-    } catch (error) {
-      throw new Error('Failed to update comment');
-    }
+    return updateEntity<IComment>(Comment, id, data);
   }
 
   async deleteComment(id: string): Promise<IComment | null> {
-    if (!Types.ObjectId.isValid(id)) {
-      return null;
-    }
-
-    try {
-      return await Comment.findByIdAndDelete(id).lean();
-    } catch (error) {
-      throw new Error('Failed to delete comment');
-    }
+    return deleteEntity<IComment>(Comment, id);
   }
 
   // Utility methods
@@ -334,7 +299,7 @@ export class MongoDBRepository {
         totalUsers,
         totalComments,
       };
-    } catch (error) {
+    } catch (error: any) {
       throw new Error('Failed to retrieve statistics');
     }
   }
@@ -348,7 +313,7 @@ export class MongoDBRepository {
         .sort({ score: { $meta: 'textScore' } })
         .limit(limit)
         .lean();
-    } catch (error) {
+    } catch (error: any) {
       throw new Error('Failed to search articles');
     }
   }
